@@ -88,14 +88,14 @@
 				showShareBtn: true,
 				rewardedVideoAd: null, //广告
 				num: 5, //次数
-				apiurl: 'https://chatgptest-node-chatgptest-node-oozhtxrqgh.us-west-1.fcapp.run', //后端转发地址
+				apiurl: 'https://www.ppxai.cn', //后端转发地址
 				api: '', //在此输入你的apikey
 				isScroll: true, //是否可以滑动
 				userAvatar: '', //头像
 				msgLoad: false,
 				isRequesting: false,
 				msgList: [{
-					output: '年轻人，我看你很迷茫。想要问些什么？',
+					output: 'Hi! 想要问些什么？',
 					isEnd: false,
 					speed: 80,
 					singleBack: false,
@@ -155,7 +155,7 @@
 				uni.share({
 					provider: 'weixin',
 					scene: 'WXSenceTimeline',
-					title: 'chatGPT智能聊天机器人',
+					title: 'ChatGPT智能聊天机器人',
 					success: (res) => {
 						console.log('111success:' + JSON.stringify(res));
 					},
@@ -182,30 +182,25 @@
 					"msg": this.msg,
 					"my": true
 				})
-				this.msgContent.push({
-					"role": "user",
-					"content": this.msg,
-				})
 				this.msgLoad = true
+				let data = JSON.stringify({
+					msg: this.msg,
+					id: 123456
+				})
 				// 清除消息
 				this.msg = ""
-				let data = JSON.stringify({
-					body: this.msgContent,
-					apiKey: this.api
-				})
 				uni.request({
-					url: this.apiurl + '/message',
+					url: this.apiurl + '/chat',
 					data: data,
 					method: 'POST',
 					success: (res) => {
-						if (res.data.code == 200) {
-							let text = res.data.data.choices[0].message.content.replace(/[\r\n][\r\n]/, "")
+						if (res.statusCode == 200) {
+							let text = res.data.result //data.choices[0].message.content.replace(/[\r\n][\r\n]/, "")
 							this.msgList.push(JSON.parse(JSON.stringify(this.config)))
 							new EasyTyper(this.msgList[this.msgList.length - 1], text)
 							this.isRequesting = false;
 							this.num--
 							this.msgContent.push({
-								"role": res.data.data.choices[0].message.role,
 								"content": text,
 							})
 							this.msgLoad = false
@@ -221,7 +216,7 @@
 						}
 					},
 					fail: (err) => {
-						console.log(3344444, '失败');
+						console.log(3344444, '失败', err);
 						this.msgList.push(JSON.parse(JSON.stringify(this.config)))
 						new EasyTyper(this.msgList[this.msgList.length - 1],  this.errorMsg)
 						this.num--
